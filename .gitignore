@@ -1,2 +1,5 @@
 *.pyc
 .env
+.upm
+venv
+.config
