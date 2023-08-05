@@ -31,18 +31,20 @@ async def get_yt_push(content):
     root = ET.fromstring(content)
 
     result = {}
-
-    entry = root.find('{http://www.w3.org/2005/Atom}entry')
-    result['id'] = entry.find('{http://www.w3.org/2005/Atom}id').text
-    result['videoId'] = entry.find('{http://www.youtube.com/xml/schemas/2015}videoId').text
-    result['channelId'] = entry.find('{http://www.youtube.com/xml/schemas/2015}channelId').text
-    result['title'] = entry.find('{http://www.w3.org/2005/Atom}title').text
-    result['link'] = entry.find('{http://www.w3.org/2005/Atom}link').attrib['href']
-    result['author_name'] = entry.find('{http://www.w3.org/2005/Atom}author/{http://www.w3.org/2005/Atom}name').text
-    result['author_uri'] = entry.find('{http://www.w3.org/2005/Atom}author/{http://www.w3.org/2005/Atom}uri').text
-    result['published'] = entry.find('{http://www.w3.org/2005/Atom}published').text
-    result['updated'] = entry.find('{http://www.w3.org/2005/Atom}updated').text
-    result['datatype'] = "youtube"
+    try:
+      entry = root.find('{http://www.w3.org/2005/Atom}entry')
+      result['id'] = entry.find('{http://www.w3.org/2005/Atom}id').text
+      result['videoId'] = entry.find('{http://www.youtube.com/xml/schemas/2015}videoId').text
+      result['channelId'] = entry.find('{http://www.youtube.com/xml/schemas/2015}channelId').text
+      result['title'] = entry.find('{http://www.w3.org/2005/Atom}title').text
+      result['link'] = entry.find('{http://www.w3.org/2005/Atom}link').attrib['href']
+      result['author_name'] = entry.find('{http://www.w3.org/2005/Atom}author/{http://www.w3.org/2005/Atom}name').text
+      result['author_uri'] = entry.find('{http://www.w3.org/2005/Atom}author/{http://www.w3.org/2005/Atom}uri').text
+      result['published'] = entry.find('{http://www.w3.org/2005/Atom}published').text
+      result['updated'] = entry.find('{http://www.w3.org/2005/Atom}updated').text
+      result['datatype'] = "youtube"
+    except Exception as e:
+       print(e)
     #print(result)
 
     url = "https://data.mongodb-api.com/app/data-gzstn/endpoint/data/v1/action/insertOne"
@@ -69,9 +71,7 @@ def youtube_push_get(request:Request):
 
 @app.post('/youtube_push')
 async def youtube_push_post(request:Request,background_task: BackgroundTasks):
-    body = await request.body()
-    body = body.decode('UTF-8')
-    print(body)
+    body = await request.body().decode('UTF-8')
     background_task.add_task(get_yt_push,body)
     return HTMLResponse('OK')
 
