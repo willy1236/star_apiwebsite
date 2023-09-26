@@ -75,6 +75,12 @@ async def youtube_push_post(request:Request,background_task: BackgroundTasks):
     background_task.add_task(get_yt_push,body)
     return HTMLResponse('OK')
 
+@app.route('/discordAuth')
+async def discordAuth(request:Request):
+	params = dict(request.query_params)
+	print(params)
+	return HTMLResponse('OK')
+
 def run():
     import uvicorn
     uvicorn.run(app,host='0.0.0.0',port=14000)
