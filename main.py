@@ -81,6 +81,12 @@ async def discordAuth(request:Request):
 	print(params)
 	return HTMLResponse('OK')
 
+@app.route('/discorlinkeddrole')
+async def discordAuth(request:Request):
+	params = dict(request.query_params)
+	print(params)
+	return HTMLResponse('OK')
+
 def run():
     import uvicorn
     uvicorn.run(app,host='0.0.0.0',port=14000)
