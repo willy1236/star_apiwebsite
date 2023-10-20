@@ -82,7 +82,7 @@ async def discordAuth(request:Request):
 	return HTMLResponse('OK')
 
 @app.route('/discorlinkeddrole')
-async def discordAuth(request:Request):
+async def discorlinkeddrole(request:Request):
 	params = dict(request.query_params)
 	print(params)
 	return HTMLResponse('OK')
