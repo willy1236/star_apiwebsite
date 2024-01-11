@@ -2,10 +2,41 @@ from fastapi import FastAPI,BackgroundTasks
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 import xml.etree.ElementTree as ET
-import os,requests
+import os,requests,threading,logging,datetime,time
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+
+
+def create_logger(dir_path,file_log=False,log_level=logging.DEBUG):
+	# config
+	logging.captureWarnings(True)   # 捕捉 py waring message
+	formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+	logger = logging.getLogger('py.warnings')    # 捕捉 py waring message
+	logger.setLevel(logging.INFO)
+
+	if file_log:
+		filename = datetime.datetime.now().strftime("%Y-%m-%d %H_%M_%S") + '.log'
+		# 若不存在目錄則新建
+		if not os.path.exists(dir_path):
+			os.makedirs(dir_path)
+
+		# file handler
+		fileHandler = logging.FileHandler(filename=f"{dir_path}/{filename}",mode='w',encoding='utf-8')
+		fileHandler.setFormatter(formatter)
+		logger.addHandler(fileHandler)
+
+	# console handler
+	consoleHandler = logging.StreamHandler()
+	consoleHandler.setLevel(log_level)
+	consoleHandler.setFormatter(formatter)
+	logger.addHandler(consoleHandler)
+
+	return logger
+
+log = create_logger('./logs',file_log=False,log_level=logging.INFO)
 app = FastAPI()
 
 @app.route('/')
@@ -91,5 +122,37 @@ def run():
     import uvicorn
     uvicorn.run(app,host='0.0.0.0',port=14000)
 
+class ltThread(threading.Thread):
+    def __init__(self):
+        super().__init__(name='ltThread')
+        self._stop_event = threading.Event()
+
+    def stop(self):
+        self._stop_event.set()
+
+    def run(self):
+        while not self._stop_event.is_set():
+            log.info("Starting ltThread")
+            os.system('lt --port 14000 --subdomain willy1236 --max-sockets 10 --local-host 127.0.0.1 --max-https-sockets 86395')
+            #cmd = [ "cmd","/c",'lt', '--port', '14000', '--subdomain', 'willy1236', '--max-sockets', '10', '--local-host', '127.0.0.1', '--max-https-sockets', '86395']
+            #cmd = ["cmd","/c","echo", "Hello, World!"]
+            #self.process = psutil.Popen(cmd)
+            #self.process.wait()
+            log.info("Finished ltThread")
+            time.sleep(5)
+
+class WebsiteThread(threading.Thread):
+    def __init__(self):
+        super().__init__(name='WebsiteThread')
+        self._stop_event = threading.Event()
+
+    def run(self):
+        import uvicorn
+        uvicorn.run(app,host='0.0.0.0',port=14000)
+        #os.system('uvicorn bot_website:app --port 14000')
+
 if __name__ == '__main__':
-    run()
+    tunnel = ltThread()
+    tunnel.start()
+    web = WebsiteThread()
+    web.start()
