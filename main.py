@@ -1,40 +1,40 @@
+import logging
+import os
+import time
+import threading
+from datetime import datetime
+
+import requests
+import xml.etree.ElementTree as ET
+from dotenv import load_dotenv
 from fastapi import FastAPI,BackgroundTasks
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
-import xml.etree.ElementTree as ET
-import os,requests,threading,logging,datetime,time
-from dotenv import load_dotenv
 
 load_dotenv()
 
-
-
-
 def create_logger(dir_path,file_log=False,log_level=logging.DEBUG):
-	# config
-	logging.captureWarnings(True)   # 捕捉 py waring message
-	formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-	logger = logging.getLogger('py.warnings')    # 捕捉 py waring message
-	logger.setLevel(logging.INFO)
+    logger = logging.getLogger()
+    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
 
-	if file_log:
-		filename = datetime.datetime.now().strftime("%Y-%m-%d %H_%M_%S") + '.log'
-		# 若不存在目錄則新建
-		if not os.path.exists(dir_path):
-			os.makedirs(dir_path)
+    if file_log:
+        filename = datetime.now().strftime("%Y-%m-%d %H_%M_%S") + '.log'
+        # 若不存在目錄則新建
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
 
-		# file handler
-		fileHandler = logging.FileHandler(filename=f"{dir_path}/{filename}",mode='w',encoding='utf-8')
-		fileHandler.setFormatter(formatter)
-		logger.addHandler(fileHandler)
+    # file handler
+    fileHandler = logging.FileHandler(filename=f"{dir_path}/{filename}",mode='w',encoding='utf-8')
+    fileHandler.setFormatter(formatter)
+    logger.addHandler(fileHandler)
 
-	# console handler
-	consoleHandler = logging.StreamHandler()
-	consoleHandler.setLevel(log_level)
-	consoleHandler.setFormatter(formatter)
-	logger.addHandler(consoleHandler)
+    # console handler
+    consoleHandler = logging.StreamHandler()
+    consoleHandler.setLevel(log_level)
+    consoleHandler.setFormatter(formatter)
+    logger.addHandler(consoleHandler)
 
-	return logger
+    return logger
 
 log = create_logger('./logs',file_log=False,log_level=logging.INFO)
 app = FastAPI()
